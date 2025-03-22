@@ -3,6 +3,17 @@ import path from "path";
 
 const filePath = path.join(__dirname, "../../../data/contacts.json");
 
+// Define the structure of a contact
+interface Contact {
+    id: string;
+    primaryNumber: string;
+    totalOutstanding: number;
+    history?: Array<{
+        change: number;
+        date: string;
+    }>;
+}
+
 // Ensure the file and directory exist
 const ensureFileExists = () => {
     const dir = path.dirname(filePath);
@@ -15,7 +26,7 @@ const ensureFileExists = () => {
 };
 
 // Save contacts to JSON
-const saveContacts = (contacts: any) => {
+const saveContacts = (contacts: Contact[]) => {
     ensureFileExists();
     fs.writeFileSync(filePath, JSON.stringify(contacts, null, 2), "utf8");
 };
@@ -24,7 +35,7 @@ const saveContacts = (contacts: any) => {
 export const GET = async () => {
     ensureFileExists();
     try {
-        const contacts = JSON.parse(fs.readFileSync(filePath, "utf8"));
+        const contacts: Contact[] = JSON.parse(fs.readFileSync(filePath, "utf8"));
         return new Response(JSON.stringify(contacts), {
             status: 200,
             headers: { "Content-Type": "application/json" },
@@ -42,23 +53,23 @@ export const GET = async () => {
 export const DELETE = async () => {
     ensureFileExists();
     try {
-      fs.writeFileSync(filePath, "[]", "utf8"); // Overwrite the file with an empty array
-      return new Response("Database cleared successfully", { status: 200 });
+        fs.writeFileSync(filePath, "[]", "utf8"); // Overwrite the file with an empty array
+        return new Response("Database cleared successfully", { status: 200 });
     } catch (error) {
-      console.error("Failed to clear database:", error);
-      return new Response("Failed to clear database", { status: 500 });
+        console.error("Failed to clear database:", error);
+        return new Response("Failed to clear database", { status: 500 });
     }
-  };
+};
 
 // Add a new contact
 export const POST = async (req: Request) => {
     ensureFileExists();
     try {
-        const newContact = await req.json();
-        const contacts = JSON.parse(fs.readFileSync(filePath, "utf8"));
+        const newContact: Contact = await req.json();
+        const contacts: Contact[] = JSON.parse(fs.readFileSync(filePath, "utf8"));
 
         // Check if a contact with the same phone number already exists
-        const existingContact = contacts.find((c: any) => c.primaryNumber === newContact.primaryNumber);
+        const existingContact = contacts.find((c) => c.primaryNumber === newContact.primaryNumber);
         if (existingContact) {
             return new Response(
                 JSON.stringify({ error: "A client with this phone number already exists." }),
@@ -86,42 +97,42 @@ export const POST = async (req: Request) => {
 export const PUT = async (req: Request) => {
     ensureFileExists();
     try {
-      const updatedContact = await req.json();
-      const contacts = JSON.parse(fs.readFileSync(filePath, "utf8"));
-  
-      // Find the contact by ID
-      const index = contacts.findIndex((c: any) => c.id === updatedContact.id);
-      if (index !== -1) {
-        const contact = contacts[index];
-        const change = updatedContact.totalOutstanding - contact.totalOutstanding;
-  
-        // Update the totalOutstanding field
-        contact.totalOutstanding = updatedContact.totalOutstanding;
-  
-        // Append the change to the history
-        if (!contact.history) {
-          contact.history = [];
+        const updatedContact: Contact = await req.json();
+        const contacts: Contact[] = JSON.parse(fs.readFileSync(filePath, "utf8"));
+
+        // Find the contact by ID
+        const index = contacts.findIndex((c) => c.id === updatedContact.id);
+        if (index !== -1) {
+            const contact = contacts[index];
+            const change = updatedContact.totalOutstanding - contact.totalOutstanding;
+
+            // Update the totalOutstanding field
+            contact.totalOutstanding = updatedContact.totalOutstanding;
+
+            // Append the change to the history
+            if (!contact.history) {
+                contact.history = [];
+            }
+            contact.history.push({
+                change,
+                date: new Date().toISOString(),
+            });
+
+            // Keep only the last 7 transactions in the history
+            if (contact.history.length > 7) {
+                contact.history = contact.history.slice(-7);
+            }
+
+            saveContacts(contacts);
+            return new Response(JSON.stringify(contact), {
+                status: 200,
+                headers: { "Content-Type": "application/json" },
+            });
+        } else {
+            return new Response("Contact not found", { status: 404 });
         }
-        contact.history.push({
-          change,
-          date: new Date().toISOString(),
-        });
-  
-        // Keep only the last 7 transactions in the history
-        if (contact.history.length > 7) {
-          contact.history = contact.history.slice(-7);
-        }
-  
-        saveContacts(contacts);
-        return new Response(JSON.stringify(contact), {
-          status: 200,
-          headers: { "Content-Type": "application/json" },
-        });
-      } else {
-        return new Response("Contact not found", { status: 404 });
-      }
     } catch (error) {
-      console.error("Failed to update contact:", error);
-      return new Response("Failed to update contact", { status: 500 });
+        console.error("Failed to update contact:", error);
+        return new Response("Failed to update contact", { status: 500 });
     }
-  };
+};
