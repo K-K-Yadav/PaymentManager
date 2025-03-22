@@ -1,0 +1,60 @@
+[
+  {
+    "id": 1742649065169,
+    "name": "krishna",
+    "primaryNumber": "9019945911",
+    "transactions": [],
+    "totalOutstanding": 1000,
+    "paid": false,
+    "history": [
+      {
+        "change": 1000,
+        "date": "2025-03-22T13:12:07.407Z"
+      },
+      {
+        "change": -500,
+        "date": "2025-03-22T13:12:11.517Z"
+      },
+      {
+        "change": 300,
+        "date": "2025-03-22T13:12:15.713Z"
+      },
+      {
+        "change": -800,
+        "date": "2025-03-22T13:12:20.248Z"
+      },
+      {
+        "change": 1000,
+        "date": "2025-03-22T13:12:24.193Z"
+      }
+    ]
+  },
+  {
+    "id": 1742649652752,
+    "name": "kumarpal",
+    "primaryNumber": "90199459118",
+    "transactions": [],
+    "totalOutstanding": 500,
+    "paid": false,
+    "history": [
+      {
+        "change": 500,
+        "date": "2025-03-22T13:21:04.694Z"
+      }
+    ]
+  },
+  {
+    "id": 1742649688189,
+    "name": "Rajpal Gowda",
+    "primaryNumber": "9019945919",
+    "transactions": [],
+    "totalOutstanding": 900,
+    "paid": false,
+    "history": [
+      {
+        "change": 900,
+        "date": "2025-03-22T13:21:38.276Z"
+      }
+    ]
+  }
+]
